@@ -1,9 +1,13 @@
 package com.mikepenz.materialdrawer.app;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -13,11 +17,13 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialize.util.UIUtils;
 
 public class CollapsingToolbarActivity extends AppCompatActivity {
 
     private AccountHeader headerResult;
     private Drawer result;
+    private AppBarLayout mAppBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,5 +58,49 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
                         new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_bullhorn)
                 )
                 .build();
+        initViews();
+
+    }
+
+    private enum State {
+        EXPANDED,
+        COLLAPSED,
+        IDLE
+    }
+
+    private void initViews() {
+        mAppBarLayout =(AppBarLayout) findViewById(R.id.appbar);
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            private State state = State.EXPANDED;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                final float scrollRange = UIUtils.convertPixelsToDp(mAppBarLayout.getTotalScrollRange(),CollapsingToolbarActivity.this);
+                final float actionBarHeight = UIUtils.convertPixelsToDp(UIUtils.getActionBarHeight(CollapsingToolbarActivity.this), CollapsingToolbarActivity.this);
+                final float edageHeight = scrollRange - actionBarHeight;
+                float offset = UIUtils.convertPixelsToDp(Math.abs(verticalOffset), CollapsingToolbarActivity.this);
+                if (offset  >edageHeight )
+                {
+                    if (state != State.COLLAPSED) {
+                        state = State.COLLAPSED;
+                    }
+                }
+                else
+                {
+                    if (state != State.EXPANDED) {
+                        state = State.EXPANDED;
+                    }
+                }
+                Log.e("Tag state : ",UIUtils.convertPixelsToDp(appBarLayout.getTotalScrollRange(),CollapsingToolbarActivity.this) + ":" + edageHeight);
+                Log.e("Tag state : ",UIUtils.convertPixelsToDp(UIUtils.getActionBarHeight(CollapsingToolbarActivity.this),CollapsingToolbarActivity.this) + ":" + UIUtils.convertPixelsToDp(Math.abs(verticalOffset),CollapsingToolbarActivity.this) + " : " +state.toString());
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
     }
 }
