@@ -1,13 +1,18 @@
 package com.mikepenz.materialdrawer.app;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.ImageView;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -24,6 +29,7 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
     private AccountHeader headerResult;
     private Drawer result;
     private AppBarLayout mAppBarLayout;
+    private ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +76,9 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
 
     private void initViews() {
         mAppBarLayout =(AppBarLayout) findViewById(R.id.appbar);
+        img = (ImageView)findViewById(R.id.header_img);
         mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            private State state = State.EXPANDED;
+            private State state = State.COLLAPSED;
 
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -83,16 +90,23 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
                 {
                     if (state != State.COLLAPSED) {
                         state = State.COLLAPSED;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+                        }
                     }
                 }
                 else
                 {
                     if (state != State.EXPANDED) {
                         state = State.EXPANDED;
+                        Palette p = Palette.from(((BitmapDrawable) img.getBackground()).getBitmap()).generate();
+                        int color = p.getDarkVibrantColor(CollapsingToolbarActivity.this.getResources().getColor(R.color.primary_dark));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            getWindow().setStatusBarColor(color);
+                        }
+
                     }
                 }
-                Log.e("Tag state : ",UIUtils.convertPixelsToDp(appBarLayout.getTotalScrollRange(),CollapsingToolbarActivity.this) + ":" + edageHeight);
-                Log.e("Tag state : ",UIUtils.convertPixelsToDp(UIUtils.getActionBarHeight(CollapsingToolbarActivity.this),CollapsingToolbarActivity.this) + ":" + UIUtils.convertPixelsToDp(Math.abs(verticalOffset),CollapsingToolbarActivity.this) + " : " +state.toString());
             }
         });
     }
