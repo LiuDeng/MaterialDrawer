@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <RelativeLayout
+        android:id="@id/essay_item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/list_item_exclude_bottom_bar_bg">
+
+        <RelativeLayout
+            android:id="@id/list_item_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp">
+
+            <ImageView
+                android:id="@id/avatar"
+                style="@style/list_item_avatar"
+                android:layout_width="@dimen/list_avatar_size"
+                android:layout_height="@dimen/list_avatar_size"
+                android:layout_centerVertical="true"
+                android:scaleType="fitXY" />
+
+            <ImageView
+                android:id="@id/vote_favorite"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="?attr/listItemFavoriteBg2"
+                android:scaleType="center"
+                android:src="?attr/listItemFavoriteIcon"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@id/list_item_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="?attr/listItemTimestamp"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@id/screen_name"
+                style="@style/list_item_screen_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="100dp"
+                android:layout_toRightOf="@id/avatar"
+                android:gravity="3"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@id/dongtai_pub_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/screen_name"
+                android:layout_below="@id/screen_name"
+                android:layout_marginRight="0dp"
+                android:layout_toLeftOf="@id/list_item_timestamp"
+                android:gravity="3"
+                android:singleLine="true"
+                android:textColor="?attr/listItemTimestamp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@id/post_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="-1"
+                android:gravity="10"
+                android:orientation="vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
+
+                <TextView
+                    android:id="@id/post_status"
+                    style="?attr/listItemStatusStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="7dp"
+                    android:drawableRight="?attr/ugcPublishHelpIcon"
+                    android:minHeight="20dp" />
+
+                <TextView
+                    android:id="@id/post_time_right"
+                    style="@style/list_item_post_time_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@id/item_report"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="11"
+                android:text="@string/label_report"
+                android:textColor="?attr/ss_audit_item_report_text"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@id/from_source"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@id/screen_name"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:gravity="11"
+                android:text="from"
+                android:textColor="?attr/dongtai_from_bar"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@id/content_layout"
+            style="@style/list_item_content_layout"
+            android:layout_below="@id/list_item_top_bar"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <TextView
+                android:id="@id/content"
+                style="@style/list_item_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textColorLink="?attr/activity_topic" />
+
+            <TextView
+                android:id="@id/load_image_trigger"
+                android:layout_width="240dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="10dp"
+                android:background="?attr/image_holder_listpage_loading"
+                android:gravity="51"
+                android:paddingBottom="14dp"
+                android:text="@string/label_load_image"
+                android:textColor="?attr/contentTextColor"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.ss.android.common.ui.view.UnPressableRelativeLayout
+                android:id="@id/list_item_image_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.ss.android.sdk.view.CustomSurfaceView
+                    android:id="@id/video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@id/content_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/image_holder_listpage"
+                    android:scaleType="fitXY" />
+
+                <RelativeLayout
+                    android:id="@id/image_crop_side"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_alignBottom="@id/content_image"
+                    android:layout_alignLeft="@id/content_image"
+                    android:layout_alignRight="@id/content_image"
+                    android:background="@drawable/bg_pic_cut">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:drawableLeft="@drawable/ic_expand_pic"
+                        android:drawablePadding="10dp"
+                        android:gravity="11"
+                        android:text="@string/crop_image_tip"
+                        android:textColor="#e1e1e1"
+                        android:textSize="13sp" />
+                </RelativeLayout>
+
+                <com.ss.android.essay.base.widget.GifClipView
+                    android:id="@id/gif_progress_clip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="2dp"
+                    android:layout_alignLeft="@id/content_image"
+                    android:layout_alignRight="@id/content_image"
+                    android:background="?attr/gif_clip_bg"
+                    android:src="?attr/gif_clip" />
+
+                <View
+                    android:id="@id/image_overlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/content_image"
+                    android:layout_alignLeft="@id/content_image"
+                    android:layout_alignRight="@id/content_image"
+                    android:layout_alignTop="@id/content_image"
+                    android:background="@drawable/bg_image_overlay" />
+
+                <ImageView
+                    android:id="@id/download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/content_image"
+                    android:layout_alignRight="@id/content_image"
+                    android:src="?attr/listItemDownload" />
+
+                <ImageView
+                    android:id="@id/btn_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/gifbutton_textpage"
+                    android:visibility="gone" />
+
+                <RelativeLayout
+                    android:id="@id/video_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_alignBottom="@id/content_image"
+                    android:layout_alignLeft="@id/content_image"
+                    android:layout_alignRight="@id/content_image"
+                    android:background="@color/bg_player_info"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@id/play_times"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/text_play_times" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/play_times"
+                        android:text="@string/play_times"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@id/video_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/white" />
+                </RelativeLayout>
+
+                <ProgressBar
+                    android:id="@id/play_progress"
+                    style="@*style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_alignParentBottom="true"
+                    android:progressDrawable="@drawable/play_progress_drawable"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@id/buffer_progress"
+                    style="@*style/Widget.ProgressBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone" />
+            </com.ss.android.common.ui.view.UnPressableRelativeLayout>
+
+            <com.ss.android.essay.base.widget.HotCommentLayout
+                android:id="@id/hot_comment_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@id/operation_entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="1"
+                android:text="@string/operation_entry"
+                android:textColor="@color/red"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <com.ss.android.common.ui.view.UnPressableLinearLayout
+            android:id="@id/list_item_bottom_bar"
+            style="@style/list_item_bottom_bar"
+            android:layout_below="@id/content_layout"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp">
+
+            <RelativeLayout
+                android:id="@id/digg_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@id/digg"
+                    style="?attr/listItemActionDiggStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" />
+
+                <com.ss.android.sdk.view.ActionAnimView
+                    android:id="@id/digg_anim"
+                    style="?attr/actionAnimIncreaseStyle"
+                    android:layout_alignRight="@id/digg"
+                    android:text="@string/action_increase"
+                    android:visibility="invisible" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="?attr/list_item_verticle_line" />
+
+            <RelativeLayout
+                android:id="@id/bury_layout"
+                android:layout_width="0dp"
+                android:layout_height="-1"
+                android:layout_weight="1.0"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@id/bury"
+                    style="?attr/listItemActionBuryStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" />
+
+                <com.ss.android.sdk.view.ActionAnimView
+                    android:id="@id/bury_anim"
+                    style="?attr/actionAnimDecreaseStyle"
+                    android:layout_alignRight="@id/bury"
+                    android:text="@string/action_increase"
+                    android:visibility="1" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="?attr/list_item_verticle_line" />
+
+            <RelativeLayout
+                android:id="@id/comment_count_layout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0">
+
+                <TextView
+                    android:id="@id/comment_count"
+                    style="?attr/list_item_action_comment_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="?attr/list_item_verticle_line" />
+
+            <RelativeLayout
+                android:id="@id/more_action_layout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.0">
+
+                <TextView
+                    android:id="@id/more_action"
+                    style="?attr/list_item_more_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" />
+            </RelativeLayout>
+        </com.ss.android.common.ui.view.UnPressableLinearLayout>
+
+        <com.ss.android.common.ui.view.UnPressableLinearLayout
+            android:id="@id/audit_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/content_layout"
+            android:orientation="horizontal"
+            android:paddingBottom="15dp"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:paddingTop="15dp">
+
+            <LinearLayout
+                android:id="@id/digg_audit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:gravity="11"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="?attr/ic_audit_funny" />
+
+                <TextView
+                    style="?attr/ss_audit_action_text"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/item_digg_action_label" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1px"
+                android:layout_height="-1"
+                android:background="?attr/list_item_verticle_line"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp" />
+
+            <LinearLayout
+                android:id="@id/bury_audit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:gravity="11"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="?attr/ic_audit_unfunny" />
+
+                <TextView
+                    style="?attr/ss_audit_action_text"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/item_bury_action_label" />
+            </LinearLayout>
+        </com.ss.android.common.ui.view.UnPressableLinearLayout>
+
+        <ImageView
+            android:id="@id/label"
+            style="?attr/label_style"
+            android:layout_width="@dimen/list_label_width"
+            android:layout_height="@dimen/list_label_height"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@id/delete_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/essay_item_layout"
+        android:layout_alignLeft="@id/essay_item_layout"
+        android:layout_alignRight="@id/essay_item_layout"
+        android:layout_alignTop="@id/essay_item_layout"
+        android:drawableLeft="?attr/icDeleteBtn"
+        android:gravity="13"
+        android:paddingLeft="15dp"
+        android:visibility="gone" />
+</RelativeLayout>
