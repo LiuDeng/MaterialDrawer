@@ -1,20 +1,17 @@
 package com.mikepenz.materialdrawer.app;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -28,8 +25,6 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
 
     private AccountHeader headerResult;
     private Drawer result;
-    private AppBarLayout mAppBarLayout;
-    private ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +33,12 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //our toolbar's height has to include the padding of the statusBar so the ColapsingToolbarLayout and the Toolbar can position
+        //the arrow/title/... correct
+        CollapsingToolbarLayout.LayoutParams lp = (CollapsingToolbarLayout.LayoutParams) toolbar.getLayoutParams();
+        lp.height = lp.height + UIUtils.getStatusBarHeight(this);
+        toolbar.setLayoutParams(lp);
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(getString(R.string.drawer_item_collapsing_toolbar_drawer));
@@ -53,6 +54,7 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
+                .withFullscreen(true)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIcon(FontAwesome.Icon.faw_home).withIdentifier(1),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_free_play).withIcon(FontAwesome.Icon.faw_gamepad),
@@ -64,57 +66,18 @@ public class CollapsingToolbarActivity extends AppCompatActivity {
                         new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_bullhorn)
                 )
                 .build();
-        initViews();
 
+        fillFab();
+        loadBackdrop();
     }
 
-    private enum State {
-        EXPANDED,
-        COLLAPSED,
-        IDLE
+    private void loadBackdrop() {
+        final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+        Glide.with(this).load("https://unsplash.it/600/300/?random").centerCrop().into(imageView);
     }
 
-    private void initViews() {
-        mAppBarLayout =(AppBarLayout) findViewById(R.id.appbar);
-        img = (ImageView)findViewById(R.id.header_img);
-        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            private State state = State.COLLAPSED;
-
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                final float scrollRange = UIUtils.convertPixelsToDp(mAppBarLayout.getTotalScrollRange(),CollapsingToolbarActivity.this);
-                final float actionBarHeight = UIUtils.convertPixelsToDp(UIUtils.getActionBarHeight(CollapsingToolbarActivity.this), CollapsingToolbarActivity.this);
-                final float edageHeight = scrollRange - actionBarHeight;
-                float offset = UIUtils.convertPixelsToDp(Math.abs(verticalOffset), CollapsingToolbarActivity.this);
-                if (offset  >edageHeight )
-                {
-                    if (state != State.COLLAPSED) {
-                        state = State.COLLAPSED;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
-                        }
-                    }
-                }
-                else
-                {
-                    if (state != State.EXPANDED) {
-                        state = State.EXPANDED;
-                        Palette p = Palette.from(((BitmapDrawable) img.getBackground()).getBitmap()).generate();
-                        int color = p.getDarkVibrantColor(CollapsingToolbarActivity.this.getResources().getColor(R.color.primary_dark));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            getWindow().setStatusBarColor(color);
-                        }
-
-                    }
-                }
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        return true;
+    private void fillFab() {
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        fab.setImageDrawable(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_favorite).actionBar().color(Color.WHITE));
     }
 }

@@ -284,6 +284,19 @@ public class AccountHeaderBuilder {
         return this;
     }
 
+    // set no divider below the header
+    protected boolean mPaddingBelowHeader = true;
+
+    /**
+     * Set this to false if you want no padding below the Header
+     *
+     * @param paddingBelowHeader
+     * @return
+     */
+    public AccountHeaderBuilder withPaddingBelowHeader(boolean paddingBelowHeader) {
+        this.mPaddingBelowHeader = paddingBelowHeader;
+        return this;
+    }
 
     // set no divider below the header
     protected boolean mDividerBelowHeader = true;
@@ -461,6 +474,20 @@ public class AccountHeaderBuilder {
         return this;
     }
 
+    // the onAccountHeaderProfileImageListener to set
+    protected AccountHeader.OnAccountHeaderProfileImageListener mOnAccountHeaderProfileImageListener;
+
+    /**
+     * set click / longClick listener for the header images
+     *
+     * @param onAccountHeaderProfileImageListener
+     * @return
+     */
+    public AccountHeaderBuilder withOnAccountHeaderProfileImageListener(AccountHeader.OnAccountHeaderProfileImageListener onAccountHeaderProfileImageListener) {
+        this.mOnAccountHeaderProfileImageListener = onAccountHeaderProfileImageListener;
+        return this;
+    }
+
     // the onAccountHeaderSelectionListener to set
     protected AccountHeader.OnAccountHeaderSelectionViewClickListener mOnAccountHeaderSelectionViewClickListener;
 
@@ -580,8 +607,22 @@ public class AccountHeaderBuilder {
      * @param onAccountHeaderListener
      * @return
      */
-    public AccountHeaderBuilder withOnAccountHeaderListener(@NonNull AccountHeader.OnAccountHeaderListener onAccountHeaderListener) {
+    public AccountHeaderBuilder withOnAccountHeaderListener(AccountHeader.OnAccountHeaderListener onAccountHeaderListener) {
         this.mOnAccountHeaderListener = onAccountHeaderListener;
+        return this;
+    }
+
+    //the on long click listener to be fired on profile longClick inside the list
+    protected AccountHeader.OnAccountHeaderItemLongClickListener mOnAccountHeaderItemLongClickListener;
+
+    /**
+     * the on long click listener to be fired on profile longClick inside the list
+     *
+     * @param onAccountHeaderItemLongClickListener
+     * @return
+     */
+    public AccountHeaderBuilder withOnAccountHeaderItemLongClickListener(AccountHeader.OnAccountHeaderItemLongClickListener onAccountHeaderItemLongClickListener) {
+        this.mOnAccountHeaderItemLongClickListener = onAccountHeaderItemLongClickListener;
         return this;
     }
 
@@ -681,6 +722,10 @@ public class AccountHeaderBuilder {
         // get the header view within the container
         mAccountHeader = mAccountHeaderContainer.findViewById(R.id.material_drawer_account_header);
 
+        //the default min header height by default 148dp
+        int defaultHeaderMinHeight = mActivity.getResources().getDimensionPixelSize(R.dimen.material_drawer_account_header_height);
+        int statusBarHeight = UIUtils.getStatusBarHeight(mActivity, true);
+
         // handle the height for the header
         int height;
         if (mHeight != null) {
@@ -695,20 +740,25 @@ public class AccountHeaderBuilder {
                 //if we are lower than api 19 (>= 19 we have a translucentStatusBar) the height should be a bit lower
                 //probably even if we are non translucent on > 19 devices?
                 if (Build.VERSION.SDK_INT < 19) {
-                    int tempHeight = height - UIUtils.getStatusBarHeight(mActivity, true);
-                    if (UIUtils.convertPixelsToDp(tempHeight, mActivity) > 140) {
+                    int tempHeight = height - statusBarHeight;
+                    //if we are lower than api 19 we are not able to have a translucent statusBar so we remove the height of the statusBar from the padding
+                    //to prevent display issues we only reduce the height if we still fit the required minHeight of 148dp (R.dimen.material_drawer_account_header_height)
+                    if (tempHeight > defaultHeaderMinHeight) {
                         height = tempHeight;
                     }
                 }
             }
         }
 
-        // handle everything if we don't have a translucent status bar
-        if (mTranslucentStatusBar) {
-            mAccountHeader.setPadding(mAccountHeader.getPaddingLeft(), mAccountHeader.getPaddingTop() + UIUtils.getStatusBarHeight(mActivity), mAccountHeader.getPaddingRight(), mAccountHeader.getPaddingBottom());
+        // handle everything if we have a translucent status bar which only is possible on API >= 19
+        if (mTranslucentStatusBar && Build.VERSION.SDK_INT >= 19) {
+            mAccountHeader.setPadding(mAccountHeader.getPaddingLeft(), mAccountHeader.getPaddingTop() + statusBarHeight, mAccountHeader.getPaddingRight(), mAccountHeader.getPaddingBottom());
             //in fact it makes no difference if we have a translucent statusBar or not. we want 9/16 just if we are not compact
             if (mCompactStyle) {
-                height = height + UIUtils.getStatusBarHeight(mActivity);
+                height = height + statusBarHeight;
+            } else if ((height - statusBarHeight) <= defaultHeaderMinHeight) {
+                //if the height + statusBar of the header is lower than the required 148dp + statusBar we change the height to be able to display all the data
+                height = defaultHeaderMinHeight + statusBarHeight;
             }
         }
 
@@ -785,7 +835,7 @@ public class AccountHeaderBuilder {
 
         //everything created. now set the header
         if (mDrawer != null) {
-            mDrawer.setHeader(mAccountHeaderContainer, mDividerBelowHeader);
+            mDrawer.setHeader(mAccountHeaderContainer, mPaddingBelowHeader, mDividerBelowHeader);
         }
 
         //forget the reference to the activity
@@ -981,7 +1031,8 @@ public class AccountHeaderBuilder {
             if (mProfileImagesVisible || mOnlyMainProfileImageVisible) {
                 setImageOrPlaceholder(mCurrentProfileView, mCurrentProfile.getIcon());
                 if (mProfileImagesClickable) {
-                    mCurrentProfileView.setOnClickListener(onProfileClickListener);
+                    mCurrentProfileView.setOnClickListener(onCurrentProfileClickListener);
+                    mCurrentProfileView.setOnLongClickListener(onCurrentProfileLongClickListener);
                     mCurrentProfileView.disableTouchFeedback(false);
                 } else {
                     mCurrentProfileView.disableTouchFeedback(true);
@@ -1006,6 +1057,7 @@ public class AccountHeaderBuilder {
                 mProfileFirstView.setTag(R.id.material_drawer_profile_header, mProfileFirst);
                 if (mProfileImagesClickable) {
                     mProfileFirstView.setOnClickListener(onProfileClickListener);
+                    mProfileFirstView.setOnLongClickListener(onProfileLongClickListener);
                     mProfileFirstView.disableTouchFeedback(false);
                 } else {
                     mProfileFirstView.disableTouchFeedback(true);
@@ -1018,6 +1070,7 @@ public class AccountHeaderBuilder {
                 mProfileSecondView.setTag(R.id.material_drawer_profile_header, mProfileSecond);
                 if (mProfileImagesClickable) {
                     mProfileSecondView.setOnClickListener(onProfileClickListener);
+                    mProfileSecondView.setOnLongClickListener(onProfileLongClickListener);
                     mProfileSecondView.disableTouchFeedback(false);
                 } else {
                     mProfileSecondView.disableTouchFeedback(true);
@@ -1030,6 +1083,7 @@ public class AccountHeaderBuilder {
                 mProfileThirdView.setTag(R.id.material_drawer_profile_header, mProfileThird);
                 if (mProfileImagesClickable) {
                     mProfileThirdView.setOnClickListener(onProfileClickListener);
+                    mProfileThirdView.setOnLongClickListener(onProfileLongClickListener);
                     mProfileThirdView.disableTouchFeedback(false);
                 } else {
                     mProfileThirdView.disableTouchFeedback(true);
@@ -1096,12 +1150,12 @@ public class AccountHeaderBuilder {
     }
 
     /**
-     * onProfileClickListener to notify onClick on a profile image
+     * onProfileClickListener to notify onClick on the current profile image
      */
     private View.OnClickListener onCurrentProfileClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            onProfileClick(v, true);
+            onProfileImageClick(v, true);
         }
     };
 
@@ -1111,7 +1165,55 @@ public class AccountHeaderBuilder {
     private View.OnClickListener onProfileClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            onProfileClick(v, false);
+            onProfileImageClick(v, false);
+        }
+    };
+
+    /**
+     * calls the mOnAccountHEaderProfileImageListener and continues with the actions afterwards
+     *
+     * @param v
+     * @param current
+     */
+    private void onProfileImageClick(View v, boolean current) {
+        IProfile profile = (IProfile) v.getTag(R.id.material_drawer_profile_header);
+
+        boolean consumed = false;
+        if (mOnAccountHeaderProfileImageListener != null) {
+            consumed = mOnAccountHeaderProfileImageListener.onProfileImageClick(v, profile, true);
+        }
+
+        //if the event was already consumed by the click don't continue. note that this will also stop the profile change event
+        if (!consumed) {
+            onProfileClick(v, current);
+        }
+    }
+
+    /**
+     * onProfileLongClickListener to call the onProfileImageLongClick on the current profile image
+     */
+    private View.OnLongClickListener onCurrentProfileLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (mOnAccountHeaderProfileImageListener != null) {
+                IProfile profile = (IProfile) v.getTag(R.id.material_drawer_profile_header);
+                return mOnAccountHeaderProfileImageListener.onProfileImageLongClick(v, profile, true);
+            }
+            return false;
+        }
+    };
+
+    /**
+     * onProfileLongClickListener to call the onProfileImageLongClick on a profile image
+     */
+    private View.OnLongClickListener onProfileLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (mOnAccountHeaderProfileImageListener != null) {
+                IProfile profile = (IProfile) v.getTag(R.id.material_drawer_profile_header);
+                return mOnAccountHeaderProfileImageListener.onProfileImageLongClick(v, profile, false);
+            }
+            return false;
         }
     };
 
@@ -1219,7 +1321,7 @@ public class AccountHeaderBuilder {
                 position = position + 1;
             }
         }
-        mDrawer.switchDrawerContent(onDrawerItemClickListener, profileDrawerItems, selectedPosition);
+        mDrawer.switchDrawerContent(onDrawerItemClickListener, onDrawerItemLongClickListener, profileDrawerItems, selectedPosition);
     }
 
     /**
@@ -1257,6 +1359,25 @@ public class AccountHeaderBuilder {
             } else {
                 return consumed;
             }
+        }
+    };
+
+    /**
+     * onDrawerItemLongClickListener to catch the longClick for a profile
+     */
+    private Drawer.OnDrawerItemLongClickListener onDrawerItemLongClickListener = new Drawer.OnDrawerItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
+            //if a longClickListener was defined use it
+            if (mOnAccountHeaderItemLongClickListener != null) {
+                final boolean isCurrentSelectedProfile;
+                isCurrentSelectedProfile = drawerItem != null && drawerItem.isSelected();
+
+                if (drawerItem != null && drawerItem instanceof IProfile) {
+                    return mOnAccountHeaderItemLongClickListener.onProfileLongClick(view, (IProfile) drawerItem, isCurrentSelectedProfile);
+                }
+            }
+            return false;
         }
     };
 

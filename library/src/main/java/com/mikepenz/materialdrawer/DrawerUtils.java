@@ -162,10 +162,17 @@ class DrawerUtils {
             if (drawer.mStickyFooterView != null && drawer.mStickyFooterView instanceof LinearLayout) {
                 LinearLayout footer = (LinearLayout) drawer.mStickyFooterView;
 
+                int shadowOffset = 0;
                 for (int i = 0; i < footer.getChildCount(); i++) {
                     Object o = footer.getChildAt(i).getTag();
+
+                    //count up the shadowOffset to return the correct position of the given item
+                    if (o == null && drawer.mStickyFooterDivider) {
+                        shadowOffset = shadowOffset + 1;
+                    }
+
                     if (o != null && o instanceof IDrawerItem && ((IDrawerItem) o).getIdentifier() == identifier) {
-                        return i;
+                        return i - shadowOffset;
                     }
                 }
             }
@@ -187,6 +194,7 @@ class DrawerUtils {
             } else {
                 drawer.mHeaderView = drawer.mAccountHeader.getView();
                 drawer.mHeaderDivider = drawer.mAccountHeader.mAccountHeaderBuilder.mDividerBelowHeader;
+                drawer.mHeaderPadding = drawer.mAccountHeader.mAccountHeaderBuilder.mPaddingBelowHeader;
             }
         }
 
@@ -229,10 +237,10 @@ class DrawerUtils {
                 throw new RuntimeException("can't use a headerView without a recyclerView");
             }
 
-            if (drawer.mHeaderDivider) {
-                drawer.getAdapter().addHeaderDrawerItems(new ContainerDrawerItem().withView(drawer.mHeaderView).withViewPosition(ContainerDrawerItem.Position.TOP));
+            if (drawer.mHeaderPadding) {
+                drawer.getAdapter().addHeaderDrawerItems(new ContainerDrawerItem().withView(drawer.mHeaderView).withDivider(drawer.mHeaderDivider).withViewPosition(ContainerDrawerItem.Position.TOP));
             } else {
-                drawer.getAdapter().addHeaderDrawerItems(new ContainerDrawerItem().withView(drawer.mHeaderView).withViewPosition(ContainerDrawerItem.Position.NONE));
+                drawer.getAdapter().addHeaderDrawerItems(new ContainerDrawerItem().withView(drawer.mHeaderView).withDivider(drawer.mHeaderDivider).withViewPosition(ContainerDrawerItem.Position.NONE));
             }
             //set the padding on the top to 0
             drawer.mRecyclerView.setPadding(drawer.mRecyclerView.getPaddingLeft(), 0, drawer.mRecyclerView.getPaddingRight(), drawer.mRecyclerView.getPaddingBottom());
@@ -249,8 +257,13 @@ class DrawerUtils {
             if (drawer.mStickyFooterView != null) {
                 drawer.mStickyFooterView.removeAllViews();
 
+                //create the divider
+                if (drawer.mStickyFooterDivider) {
+                    addStickyFooterDivider(drawer.mStickyFooterView.getContext(), drawer.mStickyFooterView);
+                }
+
                 //fill the footer with items
-                com.mikepenz.materialdrawer.DrawerUtils.fillStickyDrawerItemFooter(drawer, drawer.mStickyFooterView, new View.OnClickListener() {
+                DrawerUtils.fillStickyDrawerItemFooter(drawer, drawer.mStickyFooterView, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         IDrawerItem drawerItem = (IDrawerItem) v.getTag();
@@ -349,19 +362,29 @@ class DrawerUtils {
 
         //create the divider
         if (drawer.mStickyFooterDivider) {
-            LinearLayout divider = new LinearLayout(ctx);
-            LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            //remove bottomMargin --> See inbox it also has no margin here
-            //dividerParams.bottomMargin = mActivity.getResources().getDimensionPixelSize(R.dimen.material_drawer_padding);
-            divider.setMinimumHeight((int) UIUtils.convertDpToPixel(1, ctx));
-            divider.setOrientation(LinearLayout.VERTICAL);
-            divider.setBackgroundColor(UIUtils.getThemeColorFromAttrOrRes(ctx, R.attr.material_drawer_divider, R.color.material_drawer_divider));
-            linearLayout.addView(divider, dividerParams);
+            addStickyFooterDivider(ctx, linearLayout);
         }
 
         fillStickyDrawerItemFooter(drawer, linearLayout, onClickListener);
 
         return linearLayout;
+    }
+
+    /**
+     * adds the shadow to the stickyFooter
+     *
+     * @param ctx
+     * @param footerView
+     */
+    private static void addStickyFooterDivider(Context ctx, ViewGroup footerView) {
+        LinearLayout divider = new LinearLayout(ctx);
+        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        //remove bottomMargin --> See inbox it also has no margin here
+        //dividerParams.bottomMargin = mActivity.getResources().getDimensionPixelSize(R.dimen.material_drawer_padding);
+        divider.setMinimumHeight((int) UIUtils.convertDpToPixel(1, ctx));
+        divider.setOrientation(LinearLayout.VERTICAL);
+        divider.setBackgroundColor(UIUtils.getThemeColorFromAttrOrRes(ctx, R.attr.material_drawer_divider, R.color.material_drawer_divider));
+        footerView.addView(divider, dividerParams);
     }
 
     /**
